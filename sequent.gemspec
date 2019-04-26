@@ -24,7 +24,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency              'activerecord', active_star_version
   s.add_dependency              'activemodel', active_star_version
-  s.add_dependency              'pg', '~> 1.0'
+  s.add_dependency              'pg', '>= 0.19'
   s.add_dependency              'postgresql_cursor', '~> 0.6'
   s.add_dependency              'oj', '~> 3.3.9'
   s.add_dependency              'thread_safe', '~> 0.3.5'
