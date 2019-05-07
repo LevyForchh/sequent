@@ -23,32 +23,30 @@ module Sequent
       end
 
       def self.create!(db_config)
-        Sequent::ApplicationRecord.establish_connection(db_config.merge('database' => 'postgres'))
-        Sequent::ApplicationRecord.connection.create_database(db_config['database'])
+        ActiveRecord::Base.establish_connection(db_config.merge('database' => 'postgres'))
+        ActiveRecord::Base.connection.create_database(db_config['database'])
       end
 
-
-
       def self.drop!(db_config)
-        Sequent::ApplicationRecord.establish_connection(db_config.merge('database' => 'postgres'))
-        Sequent::ApplicationRecord.connection.drop_database(db_config['database'])
+        ActiveRecord::Base.establish_connection(db_config.merge('database' => 'postgres'))
+        ActiveRecord::Base.connection.drop_database(db_config['database'])
       end
 
       def self.establish_connection(db_config)
-        Sequent::ApplicationRecord.establish_connection(db_config)
+        ActiveRecord::Base.establish_connection(db_config)
       end
 
       def self.disconnect!
-        Sequent::ApplicationRecord.connection_pool.disconnect!
+        ActiveRecord::Base.connection_pool.disconnect!
       end
 
       def self.execute_sql(sql)
-        Sequent::ApplicationRecord.connection.execute(sql)
+        ActiveRecord::Base.connection.execute(sql)
       end
 
       def self.create_schema(schema)
         sql = "CREATE SCHEMA IF NOT EXISTS #{schema}"
-        if user = Sequent::ApplicationRecord.connection_config[:username]
+        if user = ActiveRecord::Base.connection_config[:username]
           sql += " AUTHORIZATION #{user}"
         end
         execute_sql(sql)
@@ -63,12 +61,11 @@ module Sequent
 
         disconnect!
         original_search_paths = db_config['schema_search_path'].dup
-        Sequent::ApplicationRecord.configurations[env.to_s] = ActiveSupport::HashWithIndifferentAccess.new(db_config).stringify_keys
+        ActiveRecord::Base.configurations[env.to_s] = ActiveSupport::HashWithIndifferentAccess.new(db_config).stringify_keys
         db_config['schema_search_path'] = search_path
-        Sequent::ApplicationRecord.establish_connection db_config
+        ActiveRecord::Base.establish_connection db_config
 
         yield
-
       ensure
         disconnect!
         db_config['schema_search_path'] = original_search_paths
@@ -76,7 +73,7 @@ module Sequent
       end
 
       def self.schema_exists?(schema)
-        Sequent::ApplicationRecord.connection.execute(
+        ActiveRecord::Base.connection.execute(
           "SELECT schema_name FROM information_schema.schemata WHERE schema_name like '#{schema}'"
         ).count == 1
       end
@@ -104,7 +101,6 @@ module Sequent
         else
           ActiveRecord::Migrator.migrate(migrations_path)
         end
-
       end
     end
   end
